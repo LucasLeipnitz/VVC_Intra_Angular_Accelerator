@@ -8,6 +8,8 @@ USE work.mode_in_out.all;
 
 ENTITY datapath IS
 	PORT (
+		clk : IN  std_logic;
+		rst : IN  std_logic;
 		control : IN std_logic_vector(2 downto 0);
 		ref : IN ref_bus (0 to 3 );
 		pred: OUT std_logic_vector(7 downto 0)
@@ -99,55 +101,61 @@ BEGIN
     m3 : MCM_3
     PORT MAP ( X => ref(3), Y1 => input(24), Y2 => input(25), Y3 => input(26), Y4 => input(27), Y5 => input(28), Y6 => input(29), Y7 => input(30), Y8 => input(31) );
  
-	process (ref, control)
-	  begin
-	    case control is
-	        when "000"=>
-	                eq_input(0) <= input(0); -- input 0 <= -2 * ref[0]
-	                eq_input(1) <= input(8); -- input 1 <= 59 * ref[1]
-	                eq_input(2) <= input(16); -- input 2 <= 8 * ref[2]
-	                eq_input(3) <= input(24); -- input 3 <= -1 * ref[3]
-	        when "001"=>
-	                eq_input(0) <= input(1); -- input 0 <= -5 * ref[0]
-	                eq_input(1) <= input(9); -- input 1 <= 47 * ref[1]
-	                eq_input(2) <= input(17); -- input 2 <= 24 * ref[2]
-	                eq_input(3) <= input(25); -- input 3 <= -3 * ref[3]
-	        when "010"=>
-	                eq_input(0) <= input(2); -- input 0 <= -3 * ref[0]
-	                eq_input(1) <= input(10); -- input 1 <= 27 * ref[1]
-	                eq_input(2) <= input(18); -- input 2 <= 45 * ref[2]
-	                eq_input(3) <= input(26); -- input 3 <= -5 * ref[3]
-	        when "011"=>
-	                eq_input(0) <= input(3); -- input 0 <= -1 * ref[0]
-	                eq_input(1) <= input(11); -- input 1 <= 10 * ref[1]
-	                eq_input(2) <= input(19); -- input 2 <= 58 * ref[2]
-	                eq_input(3) <= input(27); -- input 3 <= -2 * ref[3]
-	        when "100"=>
-	                eq_input(0) <= input(4); -- input 0 <= 14 * ref[0]
-	                eq_input(1) <= input(12); -- input 1 <= 30 * ref[1]
-	                eq_input(2) <= input(20); -- input 2 <= 17 * ref[2]
-	                eq_input(3) <= input(28); -- input 3 <= 1 * ref[3]
-	        when "101"=>
-	                eq_input(0) <= input(5); -- input 0 <= 10 * ref[0]
-	                eq_input(1) <= input(13); -- input 1 <= 26 * ref[1]
-	                eq_input(2) <= input(21); -- input 2 <= 21 * ref[2]
-	                eq_input(3) <= input(29); -- input 3 <= 5 * ref[3]
-	        when "110"=>
-	                eq_input(0) <= input(6); -- input 0 <= 6 * ref[0]
-	                eq_input(1) <= input(14); -- input 1 <= 22 * ref[1]
-	                eq_input(2) <= input(22); -- input 2 <= 25 * ref[2]
-	                eq_input(3) <= input(30); -- input 3 <= 9 * ref[3]
-	        when "111"=>
-	                eq_input(0) <= input(7); -- input 0 <= 2 * ref[0]
-	                eq_input(1) <= input(15); -- input 1 <= 18 * ref[1]
-	                eq_input(2) <= input(23); -- input 2 <= 29 * ref[2]
-	                eq_input(3) <= input(31); -- input 3 <= 13 * ref[3]
-	        when others => -- default case for not using latch
-	                eq_input(0) <= "0000000000000000";
-	                eq_input(1) <= "0000000000000000";
-	                eq_input(2) <= "0000000000000000";
-	                eq_input(3) <= "0000000000000000";
-	    end case;
-	  end process;
-	
+	process (rst, clk)
+	begin
+		if rst = '1' then
+			eq_input(0) <= "0000000000000000";
+			eq_input(1) <= "0000000000000000";
+			eq_input(2) <= "0000000000000000";
+			eq_input(3) <= "0000000000000000";
+		elsif clk'event and clk = '1' then
+		    case control is
+		        when "000"=>
+		                eq_input(0) <= input(0); -- input 0 <= -2 * ref[0]
+		                eq_input(1) <= input(8); -- input 1 <= 59 * ref[1]
+		                eq_input(2) <= input(16); -- input 2 <= 8 * ref[2]
+		                eq_input(3) <= input(24); -- input 3 <= -1 * ref[3]
+		        when "001"=>
+		                eq_input(0) <= input(1); -- input 0 <= -5 * ref[0]
+		                eq_input(1) <= input(9); -- input 1 <= 47 * ref[1]
+		                eq_input(2) <= input(17); -- input 2 <= 24 * ref[2]
+		                eq_input(3) <= input(25); -- input 3 <= -3 * ref[3]
+		        when "010"=>
+		                eq_input(0) <= input(2); -- input 0 <= -3 * ref[0]
+		                eq_input(1) <= input(10); -- input 1 <= 27 * ref[1]
+		                eq_input(2) <= input(18); -- input 2 <= 45 * ref[2]
+		                eq_input(3) <= input(26); -- input 3 <= -5 * ref[3]
+		        when "011"=>
+		                eq_input(0) <= input(3); -- input 0 <= -1 * ref[0]
+		                eq_input(1) <= input(11); -- input 1 <= 10 * ref[1]
+		                eq_input(2) <= input(19); -- input 2 <= 58 * ref[2]
+		                eq_input(3) <= input(27); -- input 3 <= -2 * ref[3]
+		        when "100"=>
+		                eq_input(0) <= input(4); -- input 0 <= 14 * ref[0]
+		                eq_input(1) <= input(12); -- input 1 <= 30 * ref[1]
+		                eq_input(2) <= input(20); -- input 2 <= 17 * ref[2]
+		                eq_input(3) <= input(28); -- input 3 <= 1 * ref[3]
+		        when "101"=>
+		                eq_input(0) <= input(5); -- input 0 <= 10 * ref[0]
+		                eq_input(1) <= input(13); -- input 1 <= 26 * ref[1]
+		                eq_input(2) <= input(21); -- input 2 <= 21 * ref[2]
+		                eq_input(3) <= input(29); -- input 3 <= 5 * ref[3]
+		        when "110"=>
+		                eq_input(0) <= input(6); -- input 0 <= 6 * ref[0]
+		                eq_input(1) <= input(14); -- input 1 <= 22 * ref[1]
+		                eq_input(2) <= input(22); -- input 2 <= 25 * ref[2]
+		                eq_input(3) <= input(30); -- input 3 <= 9 * ref[3]
+		        when "111"=>
+		                eq_input(0) <= input(7); -- input 0 <= 2 * ref[0]
+		                eq_input(1) <= input(15); -- input 1 <= 18 * ref[1]
+		                eq_input(2) <= input(23); -- input 2 <= 29 * ref[2]
+		                eq_input(3) <= input(31); -- input 3 <= 13 * ref[3]
+		        when others => -- default case for not using latch
+		                eq_input(0) <= "0000000000000000";
+		                eq_input(1) <= "0000000000000000";
+		                eq_input(2) <= "0000000000000000";
+		                eq_input(3) <= "0000000000000000";
+		    end case;
+		end if;
+	end process;
 END comportamental;
